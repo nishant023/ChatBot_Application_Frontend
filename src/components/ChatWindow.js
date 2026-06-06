@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
+import { chatAPI } from '../services/api';   // ← ADDED
 import './ChatWindow.css';
 
 const BOT_INTRO = {
@@ -66,11 +66,11 @@ export default function ChatWindow() {
     setLoading(true);
 
     try {
-      const res = await axios.post('/api/chat', { message: text });
+      const data = await chatAPI.sendMessage(text);  // ← CHANGED
       const botMsg = {
         id: Date.now() + 1,
         role: 'bot',
-        text: res.data.message,
+        text: data.message,                          // ← CHANGED (no res.data needed)
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, botMsg]);
@@ -78,7 +78,7 @@ export default function ChatWindow() {
       const errMsg = {
         id: Date.now() + 1,
         role: 'bot',
-        text: '⚠️ Something went wrong. Please make sure the Spring Boot server is running on **localhost:8080**.',
+        text: '⚠️ Something went wrong. Please make sure the Spring Boot server is running.',
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, errMsg]);
